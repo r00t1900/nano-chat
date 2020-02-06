@@ -6,18 +6,21 @@
 
 import logging
 import datetime
+import os
 
 
 class Logger:
     def __init__(self, project_name='example',
+                 log_folder: str = 'logs',
                  console_level: str = logging.INFO,
                  file_level: str = logging.DEBUG):
         self.arguments = {}
         datetime_now = datetime.datetime.now().strftime('%Y-%m-%d %H')
         save_filename = '{} {}.log'.format(project_name, datetime_now)
+        save_path = os.path.join(log_folder, save_filename)
         # arguments dict
         logger_arguments = {
-            'filename': save_filename,
+            'log_file_path': save_path,
             'level': {'console': console_level, 'file': file_level}
         }
 
@@ -46,7 +49,7 @@ class Logger:
         console_hlr.setLevel(self.arguments['logger']['level']['console'])
 
         # configure log-to-file sub-logger here
-        file_hlr = logging.FileHandler(self.arguments['logger']['filename'])
+        file_hlr = logging.FileHandler(self.arguments['logger']['log_file_path'])
         file_hlr.setFormatter(formatter)
         file_hlr.setLevel(self.arguments['logger']['level']['file'])
 
