@@ -14,7 +14,7 @@ CONNECT_ADDR = '{}:{}'.format(HOST_CONNECT, PORT)
 BIND_ADDR = '{}:{}'.format(HOST_BIND, PORT)
 
 # program configuration
-PROGRAM_DESCRIPTION = 'A LAN-chat program written in Python3 http://github.com/YourGithub/RepositoryAddress'
+PROGRAM_DESCRIPTION = 'A PipeLine LAN-chat program written in Python3 http://github.com/YourGithub/RepositoryAddress'
 LOG_NAME_PUSH = 'push'
 LOG_NAME_PULL = 'pull'
 # info text
@@ -36,8 +36,13 @@ H_CONNECT_KEEP_ALIVE = 'automatically reconnect when corrupted'
 COUNT_SEND_SUCCESS = 0
 COUNT_SEND_FAILED = 0
 # flag
-FLAG_CLIENT_OFFLINE = 'go-offline-now'
+FLAG_CLIENT_OFFLINE = 'client-offline-now'
+FLAG_SERVER_EXIT = 'server-exit-now'
 # log text
 L_CLIENT_CLOSED = 'pull client closed'
 L_CLIENT_CTRL_C = 'closing...'
 L_CLIENT_FLAG_OFFLINE_DETECTED = 'offline flag received from server, closing...'
+
+L_SERVER_EXIT = 'closing server'
+L_SERVER_CLOSED = 'push server closed'
+L_SERVER_SEND_FAILED_PREFIX = 'SEND FAILED'

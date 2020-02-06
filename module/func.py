@@ -15,32 +15,36 @@ def current_datetime():
 
 
 def sub_cmd_bind(arguments):
-    # initialize a logger
-    log = logger.Logger('push')
-    # create object
+    # 1 initialize a logger
+    log = logger.Logger(config.LOG_NAME_PUSH)
+    # 2 create object
     push_server = nnpy.Socket(nnpy.AF_SP, nnpy.PUSH)
-    # 1 establish a sever to push message
+    # 3 establish a sever to push message
     log.info('binding to {}://{} ...'.format(arguments.protocol, arguments.addr))
     result = push_server.bind('{}://{}'.format(arguments.protocol, arguments.addr))
     # bind status
     log.info('success') if result else log.info('failed') and exit(0)
 
-    # 2 push loop
+    # 4 push loop
     time.sleep(0.5)
     while True:
         content = input('Send({})>'.format(config.COUNT_SEND_SUCCESS))
-        if content == 'exit':
-            log.info('closing server...')
+        # process input message/command
+        if content == config.FLAG_SERVER_EXIT:
+            # exit command caught, break loop
+            log.info(config.L_SERVER_EXIT)
             break
         else:
-            send_result = push_server.send(bytes(content, encoding='utf-8'))
-            if send_result:
+            # send message/data/command
+            send_result = push_server.send(bytes(content, encoding=config.DATA_ENCODING))
+            if send_result:  # success
                 config.COUNT_SEND_SUCCESS += 1
-            else:
+            else:  # failed (warning: in push / pull mode will never reach here)
                 config.COUNT_SEND_FAILED += 1
-                log.warning('SEND FAILED:{}'.format(content))
+                log.warning('{}:{}'.format(config.L_SERVER_SEND_FAILED_PREFIX, content))
+    # 5 close server
     push_server.close()
-    log.info('push server closed')
+    log.info(config.L_SERVER_CLOSED)
 
 
 def sub_cmd_connect(arguments):
