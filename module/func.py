@@ -16,12 +16,12 @@ def current_datetime():
 
 def sub_cmd_bind(arguments):
     # 1 initialize a logger
-    log = logger.Logger(config.LOG_NAME_PUSH)
-    # 2 create object
-    push_server = nnpy.Socket(nnpy.AF_SP, nnpy.PUSH)
+    log = logger.Logger(config.ROLE_NAME_PUB)
+    # 2 create a object
+    pub_server = nnpy.Socket(nnpy.AF_SP, nnpy.PUB)
     # 3 establish a sever to push message
     log.info('binding to {}://{} ...'.format(arguments.protocol, arguments.addr))
-    result = push_server.bind('{}://{}'.format(arguments.protocol, arguments.addr))
+    result = pub_server.bind('{}://{}'.format(arguments.protocol, arguments.addr))
     # bind status
     log.info('success') if result else log.info('failed') and exit(0)
 
@@ -36,28 +36,34 @@ def sub_cmd_bind(arguments):
             break
         else:
             # send message/data/command
-            send_result = push_server.send(bytes(content, encoding=config.DATA_ENCODING))
+            send_result = pub_server.send(bytes(content, encoding=config.DATA_ENCODING))
             if send_result:  # success
                 config.COUNT_SEND_SUCCESS += 1
             else:  # failed (warning: in push / pull mode will never reach here)
                 config.COUNT_SEND_FAILED += 1
                 log.warning('{}:{}'.format(config.L_SERVER_SEND_FAILED_PREFIX, content))
     # 5 close server
-    push_server.close()
+    pub_server.close()
     log.info(config.L_SERVER_CLOSED)
 
 
 def sub_cmd_connect(arguments):
     # 1 initialize a logger
-    log = logger.Logger(config.LOG_NAME_PULL)
-    # 2create a object
-    pull_client = nnpy.Socket(nnpy.AF_SP, nnpy.PULL)
-    # not completed yet
+    log = logger.Logger(config.ROLE_NAME_SUB)
+    # 2 create a object
+    sub_client = nnpy.Socket(nnpy.AF_SP, nnpy.SUB)
+    # subscribe message to receive by prefix, default is '' and receive all messages
+    sub_client.setsockopt(nnpy.SUB, nnpy.SUB_SUBSCRIBE, arguments.subscribe)
+    if arguments.subscribe == '':
+        log.info(config.I_SUBSCRIBE_ALL)
+    else:
+        log.info('{}{}'.format(config.I_SUBSCRIBE_SPECIFIC_PREFIX, str(arguments.subscribe)))
+    # keep-alive: not completed yet
     if arguments.keep_alive:
-        print(config.I_KEEP_ALIVE_ENABLED)
+        log.info(config.I_KEEP_ALIVE_ENABLED)
     # 3 connect to a server for receiving message
     log.info('connecting to {}://{}'.format(arguments.protocol, arguments.addr))
-    result = pull_client.connect('{}://{}'.format(arguments.protocol, arguments.addr))
+    result = sub_client.connect('{}://{}'.format(arguments.protocol, arguments.addr))
     # connect status
     log.info(config.I_OP_SUCCESS) if result else log.info(config.I_OP_FAILED) and exit(0)
 
@@ -65,16 +71,18 @@ def sub_cmd_connect(arguments):
     time.sleep(0.5)
     while True:
         try:
-            recv_data = pull_client.recv()
+            recv_data = sub_client.recv()
             if recv_data:
                 decoded_data = recv_data.decode(config.DATA_ENCODING)
                 # 3 process received data
+                # remove the subscribe prefix
+                decoded_data = decoded_data[len(arguments.subscribe):]
+                # receive a go-offline flag from server, break loop
                 if decoded_data == config.FLAG_CLIENT_OFFLINE:
-                    # receive a go-offline flag from server, break loop
                     log.info(config.L_CLIENT_FLAG_OFFLINE_DETECTED)
                     break
                 # display message push by server
-                print('{} {}'.format(current_datetime(), decoded_data))
+                print('{}|{}'.format(current_datetime(), decoded_data))
                 # logging to text file
                 log.debug(decoded_data)
         except KeyboardInterrupt:
@@ -83,5 +91,5 @@ def sub_cmd_connect(arguments):
             break
 
     # 5 close client
-    pull_client.close()
+    sub_client.close()
     log.info(config.L_CLIENT_CLOSED)

@@ -1,7 +1,7 @@
 # _*_coding:utf-8 _*_
 # @Time    : 2020/2/5 18:41
 # @Author  : Shek 
-# @FileName: OneWayPipe_CLI.py
+# @FileName: chat.py
 # @Software: PyCharm
 import argparse
 from module.func import *
@@ -20,6 +20,8 @@ cmd_bind.set_defaults(func=sub_cmd_bind)
 cmd_connect = subparsers.add_parser('connect', help=config.H_CONNECT)
 cmd_connect.add_argument('protocol', action='store', nargs='?', default=config.PROTOCOL, help=config.H_CONNECT_PROTOCOL)
 cmd_connect.add_argument('addr', action='store', nargs='?', default=config.CONNECT_ADDR, help=config.H_CONNECT_ADDR)
+cmd_connect.add_argument('--subscribe', action='store', nargs='?', default=config.CONNECT_SUBSCRIBE,
+                         help=config.H_CONNECT_SUBSCRIBE)
 cmd_connect.add_argument('--keep-alive', action='store_true', help=config.H_CONNECT_KEEP_ALIVE)
 cmd_connect.set_defaults(func=sub_cmd_connect)
 
