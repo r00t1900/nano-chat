@@ -7,21 +7,20 @@ import argparse
 from module.func import *
 import config
 
-parser = argparse.ArgumentParser(description=
-                                 'A LAN-chat program written in Python3 http://github.com/YourGithub/RepositoryAddress')
+parser = argparse.ArgumentParser(description=config.PROGRAM_DESCRIPTION)
 subparsers = parser.add_subparsers()
 
 # command 'bind'
-cmd_bind = subparsers.add_parser('bind', help='bind server')
-cmd_bind.add_argument('protocol', action='store', nargs='?', default=config.PROTOCOL, help='communicate protocol')
-cmd_bind.add_argument('addr', action='store', nargs='?', default=config.BIND_ADDR, help='<host>:<port>')
+cmd_bind = subparsers.add_parser('bind', help=config.H_BIND)
+cmd_bind.add_argument('protocol', action='store', nargs='?', default=config.PROTOCOL, help=config.H_BIND_PROTOCOL)
+cmd_bind.add_argument('addr', action='store', nargs='?', default=config.BIND_ADDR, help=config.H_BIND_ADDR)
 cmd_bind.set_defaults(func=sub_cmd_bind)
 
 # command 'connect'
-cmd_connect = subparsers.add_parser('connect', help='connect to a server')
-cmd_connect.add_argument('protocol', action='store', nargs='?', default=config.PROTOCOL, help='communicate protocol')
-cmd_connect.add_argument('addr', action='store', nargs='?', default=config.CONNECT_ADDR, help='<host>:<port>')
-cmd_connect.add_argument('--keep-alive', action='store_true', help='automatically reconnect when corrupted')
+cmd_connect = subparsers.add_parser('connect', help=config.H_CONNECT)
+cmd_connect.add_argument('protocol', action='store', nargs='?', default=config.PROTOCOL, help=config.H_CONNECT_PROTOCOL)
+cmd_connect.add_argument('addr', action='store', nargs='?', default=config.CONNECT_ADDR, help=config.H_CONNECT_ADDR)
+cmd_connect.add_argument('--keep-alive', action='store_true', help=config.H_CONNECT_KEEP_ALIVE)
 cmd_connect.set_defaults(func=sub_cmd_connect)
 
 args = parser.parse_args()  # 处理输入的参数

@@ -28,54 +28,56 @@ def sub_cmd_bind(arguments):
     # 2 push loop
     time.sleep(0.5)
     while True:
-        content = input('Send({})>'.format(config.SEND_SUCCESS))
+        content = input('Send({})>'.format(config.COUNT_SEND_SUCCESS))
         if content == 'exit':
             log.info('closing server...')
             break
         else:
             send_result = push_server.send(bytes(content, encoding='utf-8'))
             if send_result:
-                config.SEND_SUCCESS += 1
+                config.COUNT_SEND_SUCCESS += 1
             else:
-                config.SEND_FAILED += 1
+                config.COUNT_SEND_FAILED += 1
                 log.warning('SEND FAILED:{}'.format(content))
     push_server.close()
     log.info('push server closed')
 
 
 def sub_cmd_connect(arguments):
-    # initialize a logger
-    log = logger.Logger('pull')
-    # create a object
+    # 1 initialize a logger
+    log = logger.Logger(config.LOG_NAME_PULL)
+    # 2create a object
     pull_client = nnpy.Socket(nnpy.AF_SP, nnpy.PULL)
     # not completed yet
     if arguments.keep_alive:
-        print('automatically reconnect enabled')
-    # 1 connect to a server for receiving message
+        print(config.I_KEEP_ALIVE_ENABLED)
+    # 3 connect to a server for receiving message
     log.info('connecting to {}://{}'.format(arguments.protocol, arguments.addr))
     result = pull_client.connect('{}://{}'.format(arguments.protocol, arguments.addr))
     # connect status
-    log.info('success') if result else log.info('failed') and exit(0)
+    log.info(config.I_OP_SUCCESS) if result else log.info(config.I_OP_FAILED) and exit(0)
 
-    # 2 receive in loop
+    # 4 receive in loop
     time.sleep(0.5)
     while True:
         try:
             recv_data = pull_client.recv()
             if recv_data:
                 decoded_data = recv_data.decode(config.DATA_ENCODING)
-                if decoded_data == config.CLIENT_OFFLINE_FLAG:
+                # 3 process received data
+                if decoded_data == config.FLAG_CLIENT_OFFLINE:
                     # receive a go-offline flag from server, break loop
-                    log.info('offline flag detected, going down now...')
+                    log.info(config.L_CLIENT_FLAG_OFFLINE_DETECTED)
                     break
                 # display message push by server
                 print('{} {}'.format(current_datetime(), decoded_data))
                 # logging to text file
                 log.debug(decoded_data)
         except KeyboardInterrupt:
-            log.info(config.LOG_TEXT['client_ctrl_c'])
+            # ctrl + c detected
+            log.info(config.L_CLIENT_CTRL_C)
             break
 
-    # close client
+    # 5 close client
     pull_client.close()
-    log.info(config.LOG_TEXT['client_closed'])
+    log.info(config.L_CLIENT_CLOSED)
