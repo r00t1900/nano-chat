@@ -14,13 +14,14 @@ CONNECT_ADDR = '{}:{}'.format(HOST_CONNECT, PORT)
 BIND_ADDR = '{}:{}'.format(HOST_BIND, PORT)
 CONNECT_SUBSCRIBE = ''
 # program configuration
-NN_MODE = 'PAIR'
+NN_MODE = 'PAIR MODE'
 PROGRAM_URL = 'http://github.com/YourGithub/RepositoryAddress'
 PROGRAM_DESCRIPTION = 'A {} LAN-chat program written in Python3 {}'.format(NN_MODE, PROGRAM_URL)
 ROLE_NAME_PUSH = 'push'
 ROLE_NAME_PULL = 'pull'
 ROLE_NAME_PUB = 'pub'
 ROLE_NAME_SUB = 'sub'
+ROLE_NAME_PAIR = 'pair'
 # info text
 I_OP_SUCCESS = 'success'
 I_OP_FAILED = 'failed'
