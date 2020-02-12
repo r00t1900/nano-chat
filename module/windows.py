@@ -1,13 +1,37 @@
 # _*_coding:utf-8 _*_
-# @Time    : 2020/2/11 12:00
+# @Time    : 2020/2/12 18:42
 # @Author  : Shek 
-# @FileName: feb11_curses.py
+# @FileName: windows.py
 # @Software: PyCharm
 import curses
 import datetime
 import threading
-from curses import wrapper
-from module.func import current_datetime
+from .func import current_datetime
+
+
+def color_pair_configure():
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)  # FG BLACK BG GREEN
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)  # FG GREEN BG BLACK
+
+
+def preconfigure(scr_obj):
+    color_pair_configure()  # for colorful display in terminal
+    scr_obj.clear() or scr_obj.refresh()  # init the std_scr and clear window
+    max_y, max_x = scr_obj.getmaxyx()  # get max window size
+    welcome_str = '(%d x %d)' % (max_x, max_y)
+    welcome_str += ' terminal size is too small to run :(' if max_y < 20 or max_x < 60 else ' press any key to GO :)'
+    scr_obj.addstr(welcome_str)
+    scr_obj.refresh() or scr_obj.getkey()  # inform the max window size
+    if max_y < 20 or max_x < 60:  # quit program if terminal size is too small
+        return False, ()
+    # argument sets for each window object here:
+    a_st = {'xy': (0, 0), 'wh': (max_x - 30, 3), 'h_text': 'Status'}  # status
+    a_sd = {'xy': (0, max_y - 6), 'wh': (max_x - 30, 6), 'h_text': 'Send'}  # send
+    a_ct = {'xy': (0, 3), 'wh': (max_x - 30, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}  # chat
+    a_dg = {'xy': (max_x - 30, 0), 'wh': (30, max_y), 'h_text': 'Debug'}  # debug
+
+    w_st, w_ct, w_sd, w_dg = StatusWindow(**a_st), ChatWindow(**a_ct), SendWindow(**a_sd), DebugWindow(**a_dg)
+    return True, (w_st, w_ct, w_sd, w_dg, (max_y, max_x))
 
 
 class CreateWindow:
@@ -21,10 +45,10 @@ class CreateWindow:
             self.refresh()
         # height and width
         self.height, self.width = self.win.getmaxyx()
-        # align format string template
-        self.ft_align_right = '{:>' + str(self.width - 1) + '}'
-        self.ft_align_left = '{:<' + str(self.width - 1) + '}'
-        self.ft_align_center = '{:^' + str(self.width - 1) + '}'
+        # align format string template:
+        self.ft_align_right = '{:>' + str(self.width - 1) + '}'  # align right
+        self.ft_align_left = '{:<' + str(self.width - 1) + '}'  # align left
+        self.ft_align_center = '{:^' + str(self.width - 1) + '}'  # align center
 
     @staticmethod
     def __text_fill(win_obj, xy: tuple, text: str, w_win: int = 0, style=None, cn_count: int = 0):
@@ -173,8 +197,9 @@ class SendWindow(CreateWindow):
         self.win.move(1, 0)
 
     def input(self, ch_code: int):
-        if ch_code == curses.KEY_BACKSPACE and len(self.message):  # delete last character when length is more than 1
-            self.message = self.message[:-1]
+        if ch_code == curses.KEY_BACKSPACE:
+            if len(self.message):  # delete last character when length is more than 1
+                self.message = self.message[:-1]
         else:  # add ASCII character to EOL
             self.message += chr(ch_code)
 
@@ -190,88 +215,3 @@ class DebugWindow(CreateWindow):
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
                  h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
         super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
-
-
-def color_pair_configure():
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)  # FG BLACK BG GREEN
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)  # FG GREEN BG BLACK
-
-
-def preconfigure(scr_obj):
-    color_pair_configure()  # for colorful display in terminal
-    scr_obj.clear() or scr_obj.refresh()  # init the std_scr and clear window
-    max_y, max_x = scr_obj.getmaxyx()  # get max window size
-    welcome_str = '(%d x %d)' % (max_x, max_y)
-    welcome_str += ' terminal size is too small to run :(' if max_y < 20 or max_x < 60 else ' press any key to GO :)'
-    scr_obj.addstr(welcome_str)
-    scr_obj.refresh() or scr_obj.getkey()  # inform the max window size
-    if max_y < 20 or max_x < 60:  # quit program if terminal size is too small
-        return False, ()
-    # argument sets for each window object here:
-    a_st = {'xy': (0, 0), 'wh': (max_x - 30, 3), 'h_text': 'Status'}  # status
-    a_sd = {'xy': (0, max_y - 6), 'wh': (max_x - 30, 6), 'h_text': 'Send'}  # send
-    a_ct = {'xy': (0, 3), 'wh': (max_x - 30, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}  # chat
-    a_dg = {'xy': (max_x - 30, 0), 'wh': (30, max_y), 'h_text': 'Debug'}  # debug
-
-    w_st, w_ct, w_sd, w_dg = StatusWindow(**a_st), ChatWindow(**a_ct), SendWindow(**a_sd), DebugWindow(**a_dg)
-    return True, (w_st, w_ct, w_sd, w_dg, (max_y, max_x))
-
-
-# ENTER_KEYS = [10, 13]  # \r 13 and \n 10
-SEND_KEYS = [10, 13]  # \r 13 and \n 10
-QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
-
-
-def main(std_scr):
-    status, elements = preconfigure(scr_obj=std_scr)  # get 4 win object and max terminal size
-    if not status:  # screen is too small to run, quit
-        return
-
-    # main begin here:
-    w_status, w_chat, w_send, w_debug, max_yx = elements
-    curses.curs_set(0)  # disable cursor blinking
-    assert isinstance(w_status, StatusWindow)
-    assert isinstance(w_chat, ChatWindow)
-    assert isinstance(w_send, SendWindow)
-    assert isinstance(w_debug, DebugWindow)
-    # data updating in thread begin:
-    # chat_logs = ['hi!']
-    chat_logs = []
-    debug_logs = []
-    w_status.upd_datetime_thread_start()
-    # end
-    std_scr.nodelay(True)
-    # screen updating in time-loop begin:
-    while True:
-        # update window data below:
-        w_status.upd_scr_datetime()
-        w_send.upd_scr_message()
-        w_chat.upd_scr_chat_logs(chat_var=chat_logs)
-
-        # none-output-refresh window objects below:
-        w_status.win.noutrefresh()
-        w_send.win.noutrefresh()
-        w_chat.win.noutrefresh()
-
-        # physical screen refresh
-        curses.doupdate()
-
-        # CATCH KEY HERE
-        ch = std_scr.getch()  # hide cursor to lower-right corner and pause
-        if ch == -1:  # return -1 when no input
-            continue
-        elif 0x20 <= ch <= 0x7e or ch in [curses.KEY_BACKSPACE]:  # input visible character solution: input to message
-            w_send.input(ch)
-        else:  # invisible character solution
-            if ch in QUIT_KEYS:  # ctrl + D: Quit
-                break
-            elif ch in SEND_KEYS:  # ctrl + G: send
-                w_send.send(chat_var=chat_logs)
-    # end
-
-    # stop all data thread
-    w_status.upd_datetime_thread_stop()
-
-
-# wrapper(main2)
-wrapper(main)
