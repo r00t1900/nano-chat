@@ -12,24 +12,22 @@ QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
 
 
 def main(std_scr):
+    std_scr.nodelay(True)  # for getch()
     status, elements = preconfigure(scr_obj=std_scr)  # get 4 win object and max terminal size
     if not status:  # screen is too small to run, quit
         return
 
     # main begin here:
     w_status, w_chat, w_send, w_debug, max_yx = elements
+    chat_logs, debug_logs = [], []
     curses.curs_set(0)  # disable cursor blinking
     assert isinstance(w_status, StatusWindow)
     assert isinstance(w_chat, ChatWindow)
     assert isinstance(w_send, SendWindow)
     assert isinstance(w_debug, DebugWindow)
-    # data updating in thread begin:
-    # chat_logs = ['hi!']
-    chat_logs = []
-    debug_logs = []
+    # data-updating-thread begin:
     w_status.upd_datetime_thread_start()
     # end
-    std_scr.nodelay(True)
     # screen updating in time-loop begin:
     while True:
         # update window data below:

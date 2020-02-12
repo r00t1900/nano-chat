@@ -135,6 +135,7 @@ class ChatWindow(CreateWindow):
                  h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
         super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
         self.last_chat_logs = []
+        self.temp = []
 
     def __timestamp_manager(self, chat_var: list, index: int, interval: int, r_count: int):
         timestamp = None
