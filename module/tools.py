@@ -30,6 +30,11 @@ def print_key_name():
     wrapper(main)
 
 
-def curse_ui_test():
+def curse_ui_test_server():
     from module.curses_loader import curses_boot_loader
     curses_boot_loader(config.PROTOCOL, config.BIND_ADDR, is_server=True)  # test as a server node
+
+
+def curse_ui_test_client():
+    from module.curses_loader import curses_boot_loader
+    curses_boot_loader(config.PROTOCOL, config.CONNECT_ADDR, is_server=False)  # test as a client node
