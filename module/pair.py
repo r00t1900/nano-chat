@@ -15,16 +15,16 @@ def current_datetime(format_str: str = '%Y-%m-%d %H:%M:%S'):
 
 class PairObject:
     def __init__(self):
-        self.pair_socket = nnpy.Socket  # has not been configured yet, just for debugging convenience
+        # self.pair_socket = nnpy.Socket  # has not been configured yet, just for debugging convenience
         # self.pair_socket = nnpy.Socket()  # has not been configured yet, just for debugging convenience
         self.flag_recv_enabled = False
 
-    def configure(self, protocol: str, addr: str, send_timeout: int = config.C_SEND_TIMEOUT, is_server: bool = True):
+    def configure(self, protocol: str, addr: str, is_server: bool = True):
         # configure should be call first
         try:
             pair_socket = nnpy.Socket(nnpy.AF_SP, nnpy.PAIR)
             # set send and recv timeout to 1s
-            pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.SNDTIMEO, send_timeout)
+            pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.SNDTIMEO, config.C_SEND_TIMEOUT)
             pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, config.C_RECV_TIMEOUT)
             if is_server:  # run as server
                 pair_socket.bind('{}://{}'.format(protocol, addr))

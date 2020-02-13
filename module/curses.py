@@ -4,7 +4,9 @@
 # @FileName: curses.py
 # @Software: PyCharm
 import curses
+from curses import wrapper
 from module.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow
+from module.pair import PairObject
 from conf import config
 
 
@@ -13,7 +15,7 @@ def color_pair_configure():
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)  # FG GREEN BG BLACK
 
 
-def preconfigure(scr_obj):
+def pre_configure(scr_obj):
     color_pair_configure()  # for colorful display in terminal
     scr_obj.clear() or scr_obj.refresh()  # init the std_scr and clear window
 
@@ -49,7 +51,7 @@ def process_chinese_characters(ch_current_got, ch_windows, send_windows_obj):
 
 
 def curses_main_for_wrapper(std_scr, nn_obj, chat_var: list):
-    pre_conf_status, elements = preconfigure(scr_obj=std_scr)  # get 4 win object and max terminal size
+    pre_conf_status, elements = pre_configure(scr_obj=std_scr)  # get 4 win object and max terminal size
     if not pre_conf_status:  # screen is too small to run, quit
         nn_obj.stop_recv_loop()
         return
@@ -119,3 +121,15 @@ def curses_main_for_wrapper(std_scr, nn_obj, chat_var: list):
     # stop all data thread
     w_status.upd_datetime_thread_stop()
     nn_obj.stop_recv_loop()
+
+
+def curses_boot_loader(protocol: str, addr: str, is_server: bool):
+    chat_logs = []
+    comm_type = PairObject()
+    comm_conf_status, comm_err_inf = comm_type.configure(protocol, addr, is_server=is_server)
+    if comm_conf_status:
+        comm_type.enable_recv_loop()
+        comm_type.start_recv_loop(chat_var=chat_logs)
+        wrapper(curses_main_for_wrapper, comm_type, chat_logs)
+    else:
+        print('{}\n{}'.format(config.C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX, comm_err_inf))
