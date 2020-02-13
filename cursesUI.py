@@ -6,11 +6,6 @@
 
 from curses import wrapper
 from module.windows import *
-import pprint
-import time
-
-SEND_KEYS = [10, 13]  # \r 13 and \n 10
-QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
 
 
 def color_pair_configure():
@@ -58,6 +53,7 @@ def main(std_scr):
     # end
     # screen updating in time-loop begin:
     while True:
+        nn = []
         # update window data below:
         w_status.upd_scr_datetime()
         w_send.upd_scr_message()
@@ -80,13 +76,30 @@ def main(std_scr):
         else:  # invisible character solution
             if ch in QUIT_KEYS:  # ctrl + D: Quit
                 break
-            elif ch in SEND_KEYS:  # ctrl + G: send
+            elif ch in SEND_KEYS:  # Enter: send
                 w_send.send(chat_var=chat_logs)
                 w_chat.page_bottom()
-            elif ch == curses.KEY_PPAGE:  # PageUp
+            elif ch == curses.KEY_PPAGE:  # PageUp key
                 w_chat.page_up()
-            elif ch == curses.KEY_NPAGE:  # PageDown
+            elif ch == curses.KEY_NPAGE:  # PageDown key
                 w_chat.page_down()
+            elif ch == curses.KEY_HOME:  # Home key
+                w_chat.page_top()
+            elif ch == curses.KEY_END:  # End key
+                w_chat.page_bottom()
+            else:
+
+                # real-time decode chinese characters
+                unknown = ['%02x' % ch]
+                while True:
+                    ch2 = std_scr.getch()
+                    if ch2 == -1:
+                        break
+                    else:
+                        unknown.append('%02x' % ch2)
+                if len(unknown) >= 3:
+                    b = bytes.fromhex(''.join(unknown))
+                    w_send.append_message(b.decode('utf-8'))
     # end
 
     # stop all data thread

@@ -8,6 +8,18 @@ import datetime
 import threading
 from .func import current_datetime
 
+CN_CODE_RANGE = ('\u0391', '\uffe5')  # chinese characters and commas
+SEND_KEYS = [10, 13]  # \r 13 and \n 10
+QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
+
+
+def cn_count(text: str, code_range: tuple = CN_CODE_RANGE):
+    count = 0
+    for ch in text:
+        if code_range[0] <= ch <= code_range[1]:
+            count += 1
+    return count
+
 
 class CreateWindow:
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
@@ -23,8 +35,19 @@ class CreateWindow:
         # align format string template:
         self.ft_align_right = '{:>' + str(self.width - 1) + '}'  # align right
         self.ft_align_left = '{:<' + str(self.width - 1) + '}'  # align left
-        # self.ft_align_center = '{:^' + str(self.width - 1) + '}'  # align center raw
-        self.ft_align_center = '{:^' + str(self.width - 1 - 2) + '}'  # align center with 2 chinese characters
+        self.ft_align_center = '{:^' + str(self.width - 1) + '}'  # align center raw
+
+    def align_center(self, text: str):
+        ft_str = '{:^' + str(self.width - 1 - cn_count(text)) + '}'
+        return ft_str.format(text)
+
+    def align_right(self, text: str):
+        ft_str = '{:>' + str(self.width - 1 - cn_count(text)) + '}'
+        return ft_str.format(text)
+
+    def align_left(self, text: str):
+        ft_str = '{:<' + str(self.width - 1 - cn_count(text)) + '}'
+        return ft_str.format(text)
 
     @staticmethod
     def __text_fill(win_obj, xy: tuple, text: str, w_win: int = 0, style=None, cn_count: int = 0):
@@ -122,31 +145,37 @@ class ChatWindow(CreateWindow):
             p_dt = datetime.datetime.strptime(chat_var[index - 1]['time'], '%Y-%m-%d %H:%M:%S')  # previous datetime
             delta = n_dt - p_dt
             if delta.total_seconds() >= interval:  # print datetime in the middle
-                timestamp = '{} {}:{}'.format('上午' if 0 <= n_dt.hour <= 12 else '下午', n_dt.hour, n_dt.minute)
+                timestamp = '{} {}:{:02d}'.format('上午' if 0 <= n_dt.hour <= 12 else '下午', n_dt.hour, n_dt.minute)
         else:  # line 0
-            timestamp = '{} {}:{}'.format('上午' if 0 <= n_dt.hour <= 12 else '下午', n_dt.hour, n_dt.minute)
+            timestamp = '{} {}:{:02d}'.format('上午' if 0 <= n_dt.hour <= 12 else '下午', n_dt.hour, n_dt.minute)
 
         if timestamp is not None:
-            self.t_add_str_sets.append([self.ft_align_center.format(timestamp), curses.color_pair(2)])
+            self.t_add_str_sets.append([self.align_center(timestamp), curses.color_pair(2)])
 
     def page_up(self):
         begin_index = -(self.height - 1) + self.page_offset
-        if begin_index != -(len(self.t_add_str_sets)):
+        if begin_index > -(len(self.t_add_str_sets)):
             self.page_offset -= 1
             self.flag_page_changed = True
+            return True
+        else:
+            return False
 
     def page_down(self):
         if self.page_offset < 0:
             self.page_offset += 1
             self.flag_page_changed = True
+            return True
+        else:
+            return False
 
     def page_bottom(self):
-        self.page_offset = 0
-        self.flag_page_changed = True
+        while self.page_down():
+            pass
 
     def page_top(self):
-        self.page_offset = len(self.t_add_str_sets) - (self.height - 1)
-        self.flag_page_changed = True
+        while self.page_up():
+            pass
 
     def upd_scr_chat_logs(self, chat_var: list, debug_var: list):
         # chat logs changed or pageup/pagedown keys pressed wil do screen update(won't do any if remains the same)
@@ -161,25 +190,27 @@ class ChatWindow(CreateWindow):
                 self.__timestamp_manager(chat_var, i, datetime_interval_seconds)  # add timestamp automatically
 
                 msg_raw, msg_clips, r_len = chat_var[i]['message'], [], len(chat_var[i]['from'])  # r-len: role str len
-                while msg_raw:
-                    msg_clip = msg_raw[:msg_len_r]
-                    msg_clips.append(msg_clip)
-                    msg_raw = msg_raw[msg_len_r:]
 
+                # bug fixed on 2020-2-13 11:28 chinese character message width limit issue
+                while msg_raw:
+                    idx = msg_len_r
+                    clip = msg_raw[:idx]
+                    while len(clip) + cn_count(clip) > msg_len_r:
+                        idx -= 1
+                        clip = msg_raw[:idx]
+                    msg_clips.append(clip)
+                    msg_raw = msg_raw[idx:]
                 # core operation here
                 for j in range(len(msg_clips)):
-                    m_len = msg_len_r - len(msg_clips[j])  # delta between standard len and current len
+                    # delta between standard len and current len
+                    m_len = msg_len_r - len(msg_clips[j]) - cn_count(msg_clips[j])  # calc the count of blank space
                     msg = msg_clips[j] + ('%s' % (' ' * (1 + r_len + m_len)) if j else '<%s' % chat_var[i]['from'])
-                    self.t_add_str_sets.append([self.ft_align_right.format(msg), 0])
-            bgn_i = -(self.height - 1) + self.page_offset
-            dest_i = len(self.t_add_str_sets) + self.page_offset
+                    self.t_add_str_sets.append([self.align_right(msg), 0])  # update
+            bgn_i = -(self.height - 1) + self.page_offset  # begin_index
+            dest_i = len(self.t_add_str_sets) + self.page_offset  # dest_index
             for i, a in enumerate(self.t_add_str_sets[bgn_i:dest_i]):
-                # try:
-                self.win.addstr(i + 1, 0, a[0], a[1])
-                # except curses.error as e:
-                #     debug_var.append([i + 1, 0, a[0], a[1]])
-                # bug fixed: chinese characters occupied 2 english characters
-
+                self.win.addstr(i + 1, 0, a[0], a[1])  # add to Chat-Screen data
+            self.win.move(1, 0)  # move cursor to (1,0)
             self.last_chat_logs = chat_var.copy()  # copy to last_chat_logs for compare the next time
             self.flag_page_changed = False  # resume page-changed status to False
 
@@ -191,6 +222,7 @@ class SendWindow(CreateWindow):
         super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
         self.message = ''
         self.role_name = 'anonymous'
+        self.unknown_characters = []
 
     def set_role_name(self, role_name: str):
         self.role_name = role_name
@@ -207,6 +239,12 @@ class SendWindow(CreateWindow):
                 self.message = self.message[:-1]
         else:  # add ASCII character to EOL
             self.message += chr(ch_code)
+
+    def overwrite_message(self, msg_text: str):
+        self.message = msg_text
+
+    def append_message(self, append_text: str):
+        self.message += append_text
 
     def send(self, chat_var: list):
         if len(self.message):
