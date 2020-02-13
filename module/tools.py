@@ -1,13 +1,14 @@
 # _*_coding:utf-8 _*_
-# @Time    : 2020/2/12 20:59
+# @Time    : 2020/2/13 20:39
 # @Author  : Shek 
-# @FileName: windows_debug_func.py
+# @FileName: tools.py
 # @Software: PyCharm
 import curses
+from conf import config
 from curses import wrapper
 
 
-def tool_key_name():
+def print_key_name():
     """
     press key on your keyboard and it returns you the key_name in curses along with its ASCII code
     :return:
@@ -27,3 +28,8 @@ def tool_key_name():
             std_scr.move(row, 0)
 
     wrapper(main)
+
+
+def curse_ui_test():
+    from module.curses_loader import curses_boot_loader
+    curses_boot_loader(config.PROTOCOL, config.BIND_ADDR, is_server=True)  # test as a server node

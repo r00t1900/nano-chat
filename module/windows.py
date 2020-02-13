@@ -4,9 +4,7 @@
 # @FileName: windows.py
 # @Software: PyCharm
 import curses
-import datetime
 import threading
-import config
 from module.universal import *
 
 

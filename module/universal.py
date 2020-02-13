@@ -3,7 +3,7 @@
 # @Author  : Shek 
 # @FileName: common.py
 # @Software: PyCharm
-import config
+from conf import config
 import datetime
 
 

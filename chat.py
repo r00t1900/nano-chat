@@ -5,7 +5,7 @@
 # @Software: PyCharm
 import argparse
 from module.sub_command import *
-import config
+from conf import config
 
 parser = argparse.ArgumentParser(description=config.PROGRAM_DESCRIPTION)
 subparsers = parser.add_subparsers()

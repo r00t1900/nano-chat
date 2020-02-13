@@ -3,7 +3,10 @@
 # @Author  : Shek 
 # @FileName: key_test_curses.py
 # @Software: PyCharm
-from module.windows_debug_func import tool_key_name
+import sys
+
+sys.path.append('..')
+from module.tools import print_key_name
 
 if __name__ == '__main__':
-    tool_key_name()
+    print_key_name()

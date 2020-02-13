@@ -6,7 +6,7 @@
 import nnpy
 import threading
 import datetime
-import config
+from conf import config
 
 
 def current_datetime(format_str: str = '%Y-%m-%d %H:%M:%S'):

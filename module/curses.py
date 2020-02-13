@@ -5,7 +5,7 @@
 # @Software: PyCharm
 import curses
 from module.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow
-import config
+from conf import config
 
 
 def color_pair_configure():
