@@ -7,7 +7,7 @@ import curses
 import datetime
 import threading
 import config
-from module.common import *
+from module.universal import *
 
 
 class CreateWindow:
@@ -153,7 +153,7 @@ class ChatWindow(CreateWindow):
                  h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
         super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
         self.last_chat_logs = []
-        self.t_add_str_sets = []
+        self.logs_loop_sets = []
         self.page_offset = 0
         self.flag_page_changed = False
         # self.debugger = DebugWindow
@@ -170,14 +170,14 @@ class ChatWindow(CreateWindow):
             timestamp = '{} {}:{:02d}'.format('上午' if 0 <= n_dt.hour <= 12 else '下午', n_dt.hour, n_dt.minute)
 
         if timestamp is not None:
-            self.t_add_str_sets.append([self.align_center(timestamp), curses.color_pair(2)])
+            self.logs_loop_sets.append([self.align_center(timestamp), curses.color_pair(2)])
 
     def init_debug_object(self, debug_object: DebugWindow):
         self.debugger = debug_object
 
     def page_up(self):
         begin_index = -(self.height - 1) + self.page_offset
-        if begin_index > -(len(self.t_add_str_sets)):
+        if begin_index > -(len(self.logs_loop_sets)):
             self.page_offset -= 1
             self.flag_page_changed = True
             return True
@@ -203,14 +203,18 @@ class ChatWindow(CreateWindow):
     def upd_scr_chat_logs(self, chat_var: list):
         # chat logs changed or pageup/pagedown keys pressed wil do screen update(won't do any if remains the same)
         if self.last_chat_logs != chat_var or self.flag_page_changed:
-            self.t_add_str_sets = []
+            self.logs_loop_sets = []
             self.win.move(1, 0)  # move cursor to (1,0)
             self.win.clrtoeol()  # clear from (1,0) to end-of-line(EOL)
-            datetime_interval_seconds = 5
-            msg_len_r = 30 if self.width < 90 else self.width // 3  # min of msg width is 30
+
+            dt_interval_sec = config.C_DATETIME_REFRESH_INTERVAL
+
+            msg_len_r = config.C_SEND_MESSAGE_MAX_WIDTH if self.width < 3 * config.C_SEND_MESSAGE_MAX_WIDTH else \
+                self.width // 3  # min of msg width is 30
+
             # draw each row with individual chat log
             for i in range(len(chat_var)):
-                self.__timestamp_manager(chat_var, i, datetime_interval_seconds)  # add timestamp automatically
+                self.__timestamp_manager(chat_var, i, dt_interval_sec)  # add timestamp automatically
 
                 msg_raw, msg_clips, r_len = chat_var[i]['message'], [], len(chat_var[i]['from'])  # r-len: role str len
 
@@ -227,16 +231,16 @@ class ChatWindow(CreateWindow):
                 for j in range(len(msg_clips)):
                     # delta between standard len and current len
                     m_len = msg_len_r - len(msg_clips[j]) - cn_count(msg_clips[j])  # calc the count of blank space
-                    if chat_var[i]['from'] == config.C_SEND_ROLE_NAME:  # align right for self
+                    if chat_var[i]['role'] == config.C_SELF_ID:  # align right for self
                         msg = msg_clips[j] + ('%s' % (' ' * (1 + r_len + m_len)) if j else '<%s' % chat_var[i]['from'])
-                        self.t_add_str_sets.append([self.align_right(msg), 0])  # update
+                        self.logs_loop_sets.append([self.align_right(msg), 0])  # update
                     else:  # align left for friend
                         msg = ('%s' % (' ' * (1 + r_len + m_len)) if j else '%s>' % chat_var[i]['from']) + msg_clips[j]
-                        self.t_add_str_sets.append([self.align_left(msg), 0])  # update
+                        self.logs_loop_sets.append([self.align_left(msg), 0])  # update
 
             bgn_i = -(self.height - 1) + self.page_offset  # begin_index
-            dest_i = len(self.t_add_str_sets) + self.page_offset  # dest_index
-            for i, a in enumerate(self.t_add_str_sets[bgn_i:dest_i]):
+            dest_i = len(self.logs_loop_sets) + self.page_offset  # dest_index
+            for i, a in enumerate(self.logs_loop_sets[bgn_i:dest_i]):
                 self.win.addstr(i + 1, 0, a[0], a[1])  # add to Chat-Screen data
             self.win.move(1, 0)  # move cursor to (1,0)
             self.last_chat_logs = chat_var.copy()  # copy to last_chat_logs for compare the next time
@@ -280,5 +284,6 @@ class SendWindow(CreateWindow):
     def publish_send_status(self, chat_var: list, send_succeed: bool):
         if len(self.message):
             apx = config.C_SEND_SUCCEED_SUFFIX if send_succeed else config.C_SEND_FAILED_SUFFIX
-            chat_var.append({'time': current_datetime(), 'message': self.message + apx, 'from': self.role_name})
+            chat_var.append({'time': current_datetime(), 'message': self.message + apx, 'from': self.role_name,
+                             'role': config.C_SELF_ID})
             self.message = ''

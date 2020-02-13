@@ -18,7 +18,7 @@ def sub_cmd_bind(arguments):
         wrapper(curses_main_for_wrapper, pair, chat_logs)  # pair->pair_obj of curses_main_for_wrapper
         print('all stopped.')
     else:
-        print('init failed because:\n'.format(err_inf))
+        print('init failed because:\n{}'.format(err_inf))
 
 
 def sub_cmd_connect(arguments):

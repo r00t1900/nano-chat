@@ -48,7 +48,8 @@ class PairObject:
         while self.flag_recv_enabled:
             try:
                 recv = self.pair_socket.recv()
-                chat_var.append({'time': current_datetime(), 'message': recv.decode('utf-8'), 'from': 'friend'})
+                chat_var.append({'time': current_datetime(), 'message': recv.decode(config.DATA_ENCODING),
+                                 'from': config.C_SEND_ROLE_NAME, 'role': config.C_FRIEND_ID})
             except nnpy.errors.NNError:
                 continue
 

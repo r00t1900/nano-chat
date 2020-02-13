@@ -55,8 +55,8 @@ L_SERVER_CLOSED = 'server closed'
 L_SERVER_SEND_FAILED_PREFIX = 'SEND FAILED'
 
 # CURSES
-C_SEND_ROLE_NAME = 'self'
-C_RECV_ROLE_NAME = 'her'
+C_SEND_ROLE_NAME = ''
+C_RECV_ROLE_NAME = ''
 C_SEND_TIMEOUT = 100
 C_RECV_TIMEOUT = 100
 C_SEND_SUCCEED_SUFFIX = ''
@@ -67,3 +67,7 @@ CODE_CUSTOM = ()  # set the custom code range and add it to code_sets
 SEND_KEYS = [10, 13]  # \r 13 and \n 10
 QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
 CODE_SETS = [CODE_CN]
+C_DATETIME_REFRESH_INTERVAL = 60
+C_SEND_MESSAGE_MAX_WIDTH = 30
+C_SELF_ID = 0
+C_FRIEND_ID = 1
