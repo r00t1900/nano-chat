@@ -1,18 +1,19 @@
 # _*_coding:utf-8 _*_
 # @Time    : 2020/2/5 9:22
 # @Author  : Shek 
-# @FileName: log_module.py
+# @FileName: logger.py
 # @Software: PyCharm
-
+"""
+Logging module for local files and console output in the same time.
+Have not had time to write description yet since it was used by myself at present time
+"""
 import logging
 import datetime
 import os
 
 
 class Logger:
-    def __init__(self, project_name='example',
-                 log_folder: str = 'logs',
-                 console_level: str = logging.INFO,
+    def __init__(self, project_name='example', log_folder: str = 'logs', console_level: str = logging.INFO,
                  file_level: str = logging.DEBUG):
         self.arguments = {}
         datetime_now = datetime.datetime.now().strftime('%Y-%m-%d %H')

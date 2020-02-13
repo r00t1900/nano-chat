@@ -3,6 +3,9 @@
 # @Author  : Shek 
 # @FileName: key_test_curses.py
 # @Software: PyCharm
+"""
+press key on your keyboard and it returns you the key_name in curses along with its ASCII code
+"""
 import sys
 
 sys.path.append('..')

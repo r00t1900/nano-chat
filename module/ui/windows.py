@@ -5,16 +5,16 @@
 # @Software: PyCharm
 import curses
 import threading
-from module.universal import *
+from module.common import *
 
 
 class CreateWindow:
+    """
+    Parent class "CreateWindow" to be inherited which will automatically create window object by default
+    """
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
-                 h_style=curses.A_NORMAL, refresh_now: bool = True, cn_count: int = 0):
-        """
-        Parent class "CreateWindow" to be inherited which will automatically create window object by default
-        """
-        self.win = self.__window_create(xy, wh, h_enabled, h_text, h_style, cn_count)  # create a window
+                 h_style=curses.A_NORMAL, refresh_now: bool = True, zh_count: int = 0):
+        self.win = self.__window_create(xy, wh, h_enabled, h_text, h_style, zh_count)  # create a window
         if refresh_now:  # refresh window once it was created
             self.refresh()
         # height and width
@@ -85,8 +85,8 @@ class DebugWindow(CreateWindow):
     # debug information pipe need to be added
     # logic of refreshing debug logs need to be declared
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
-                 h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
-        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
+                 h_style=curses.A_REVERSE, refresh_now: bool = True, zh_count: int = 0):
+        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, zh_count)  # inherit from parent
         self.last_debug_logs = []
         self.debug_logs = []
 
@@ -116,8 +116,8 @@ class StatusWindow(CreateWindow):
     #     self.flag_upd_datetime = False
 
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
-                 h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
-        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
+                 h_style=curses.A_REVERSE, refresh_now: bool = True, zh_count: int = 0):
+        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, zh_count)  # inherit from parent
         self.flag_upd_datetime = False
 
     def init_debug_object(self, debug_object: DebugWindow):
@@ -148,8 +148,8 @@ class ChatWindow(CreateWindow):
     # chat logs pipe need to be added
     # logic of refreshing chat logs need to be declared
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
-                 h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
-        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
+                 h_style=curses.A_REVERSE, refresh_now: bool = True, zh_count: int = 0):
+        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, zh_count)  # inherit from parent
         self.last_chat_logs = []
         self.logs_loop_sets = []
         self.page_offset = 0
@@ -248,8 +248,8 @@ class ChatWindow(CreateWindow):
 class SendWindow(CreateWindow):
     # [send] button need to be added
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
-                 h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
-        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
+                 h_style=curses.A_REVERSE, refresh_now: bool = True, zh_count: int = 0):
+        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, zh_count)  # inherit from parent
         self.message = ''
         self.role_name = config.C_SEND_ROLE_NAME
         self.unknown_characters = []

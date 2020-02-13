@@ -2,6 +2,9 @@
   <dictionary name="Shek">
     <words>
       <w>getch</w>
+      <w>nanomsg</w>
+      <w>nnpy</w>
+      <w>shek</w>
     </words>
   </dictionary>
 </component>

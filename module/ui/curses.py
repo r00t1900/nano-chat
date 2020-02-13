@@ -4,21 +4,30 @@
 # @FileName: curses.py
 # @Software: PyCharm
 import curses
-from curses import wrapper
-from module.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow
-from module.pair import PairObject
 from conf import config
+from curses import wrapper
+from module.ui.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow
+from module.communication.nanomsg_pair import PairObject
 
 
 def color_pair_configure():
+    """
+    do your color pair initialize here
+    :return:
+    """
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)  # FG BLACK BG GREEN
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)  # FG GREEN BG BLACK
 
 
 def pre_configure(scr_obj):
-    color_pair_configure()  # for colorful display in terminal
+    """
+    do some requirement test and lazy job such as windows arrangement for curses, divided into 4 windows:
+    Status,Chat,Send and Debug
+    :param scr_obj: if the terminal size does not meet the minimum, use it to send a warning and quit, just for this
+    :return:
+    """
+    # 1. test terminal size
     scr_obj.clear() or scr_obj.refresh()  # init the std_scr and clear window
-
     max_y, max_x = scr_obj.getmaxyx()  # get max window size
     welcome_str = '(%d x %d)' % (max_x, max_y)
     if max_y < 20 or max_x < 60:  # quit program if terminal size is too small
@@ -27,30 +36,54 @@ def pre_configure(scr_obj):
         scr_obj.refresh()
         scr_obj.getkey()  # inform the max window size
         return False, ()
-    # argument sets for each window object here:
+
+    # 2. init color pair when necessary
+    color_pair_configure()  # for colorful display in terminal
+
+    # 3. create 4 window for different usages
     a_st = {'xy': (0, 0), 'wh': (max_x - 30, 3), 'h_text': 'Status'}  # status
     a_sd = {'xy': (0, max_y - 6), 'wh': (max_x - 30, 6), 'h_text': 'Send'}  # send
     a_ct = {'xy': (0, 3), 'wh': (max_x - 30, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}  # chat
     a_dg = {'xy': (max_x - 30, 0), 'wh': (30, max_y), 'h_text': 'Debug'}  # debug
 
+    #  use arguments above to create each window object
     w_st, w_ct, w_sd, w_dg = StatusWindow(**a_st), ChatWindow(**a_ct), SendWindow(**a_sd), DebugWindow(**a_dg)
+
     return True, (w_st, w_ct, w_sd, w_dg, (max_y, max_x))
 
 
 def process_chinese_characters(ch_current_got, ch_windows, send_windows_obj):
+    """
+    sub function for main() of curses.wrapper(), repeat reading get_ch() and combine them to chinese characters
+    or commas if requirement matched. The requirement is simple: if continue to uninterruptedly read for more than 2(
+    more than 3 in total because there is already a `ch_current_got` been sent here) then we consider it as a chinese
+    characters or commas, considering chinese characters or commas take hex length of 3 or 4
+    It returns nothing but directly action on `send_windows_obj`
+    :param ch_current_got:previously got value of get_ch()
+    :param ch_windows:the host windows of get_ch() which send `ch_current_got` here
+    :param send_windows_obj:sendWindow object
+    :return:
+    """
     unknown = ['%02x' % ch_current_got]  # real-time decode chinese characters
     while True:
         ch2 = ch_windows.getch()
-        if ch2 == -1:
+        if ch2 == -1:  # means no user input
             break
-        else:
-            unknown.append('%02x' % ch2)
+        else:  # got user input and then collect it
+            unknown.append('%02x' % ch2)  # of course: in hex string format
     if len(unknown) >= 3:
-        b = bytes.fromhex(''.join(unknown))
-        send_windows_obj.append_message(b.decode(config.DATA_ENCODING))
+        b = bytes.fromhex(''.join(unknown))  # join to a hex-string and convert to bytes
+        send_windows_obj.append_message(b.decode(config.DATA_ENCODING))  # sync content of current message
 
 
 def curses_main_for_wrapper(std_scr, nn_obj, chat_var: list):
+    """
+    function-based argument for curses.wrapper
+    :param std_scr: the raw window object that was first created
+    :param nn_obj: communication mode object, by default is a nanomsg-pair mode object
+    :param chat_var: a list variable for chatWindow to display chat logs
+    :return:
+    """
     pre_conf_status, elements = pre_configure(scr_obj=std_scr)  # get 4 win object and max terminal size
     if not pre_conf_status:  # screen is too small to run, quit
         nn_obj.stop_recv_loop()
@@ -124,6 +157,13 @@ def curses_main_for_wrapper(std_scr, nn_obj, chat_var: list):
 
 
 def curses_boot_loader(protocol: str, addr: str, is_server: bool):
+    """
+    a standard binder for nanomsg and curses and I think I can call it a loader either
+    :param protocol: arguments for nanomsg
+    :param addr: arguments for nanomsg
+    :param is_server: use nnpy.Socket.bind if `is_server`==1 else nnpy.Socket.connect
+    :return:
+    """
     chat_logs = []
     comm_type = PairObject()
     comm_conf_status, comm_err_inf = comm_type.configure(protocol, addr, is_server=is_server)

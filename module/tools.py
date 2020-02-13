@@ -6,7 +6,7 @@
 import curses
 from conf import config
 from curses import wrapper
-from module.curses import curses_boot_loader
+from module.ui.curses import curses_boot_loader
 
 
 def print_key_name():

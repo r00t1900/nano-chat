@@ -3,8 +3,31 @@
 # @Author  : Shek 
 # @FileName: chat.py
 # @Software: PyCharm
+"""
+The command-line entrance script written for nanomsg training(and use curses for cli-ui later).
+
+Actually using PyQt5 can do these job much more easily, such as pipe and threading. But I thought I have already
+used PyQt to create more than 10 available and stable programs, while advanced-cli program remains empty. That's
+the reason why I use curses first and Qt latter in this period of training.
+
+(by the way: argument `--keep-alive` in sub-command `connect` does not function in any circumstance, it's a history
+problem I think ha ha, I will find a time to remove it.)
+
+usage: chat.py [-h] {bind,connect} ...
+
+A nanomsg-Pair&Curses LAN-chat program written in Python3
+
+positional arguments:
+  {bind,connect}
+    bind          bind server
+    connect       connect to a server
+
+optional arguments:
+  -h, --help      show this help message and exit
+
+"""
 import argparse
-from module.sub_command import *
+from module.ui.cmd import *
 from conf import config
 
 parser = argparse.ArgumentParser(description=config.PROGRAM_DESCRIPTION)
