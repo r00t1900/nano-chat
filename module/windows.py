@@ -6,19 +6,56 @@
 import curses
 import datetime
 import threading
-from .func import current_datetime
+import config
 
-CN_CODE_RANGE = ('\u0391', '\uffe5')  # chinese characters and commas
+
+def current_datetime(format_str: str = '%Y-%m-%d %H:%M:%S'):
+    return datetime.datetime.now().strftime(format_str)
+
+
+CODE_CN = ('\u0391', '\uffe5')  # chinese characters and commas
+CODE_CUSTOM = ()  # set the custom code range and add it to code_sets
 SEND_KEYS = [10, 13]  # \r 13 and \n 10
 QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
+CODE_SETS = [CODE_CN]
 
 
-def cn_count(text: str, code_range: tuple = CN_CODE_RANGE):
+def cn_count(text: str, code_all=None):
+    if code_all is None:
+        code_all = CODE_SETS
     count = 0
-    for ch in text:
-        if code_range[0] <= ch <= code_range[1]:
-            count += 1
+    for code_range in code_all:
+        for ch in text:
+            if code_range[0] <= ch <= code_range[1]:
+                count += 1
     return count
+
+
+def color_pair_configure():
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)  # FG BLACK BG GREEN
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)  # FG GREEN BG BLACK
+
+
+def preconfigure(scr_obj):
+    color_pair_configure()  # for colorful display in terminal
+    scr_obj.clear() or scr_obj.refresh()  # init the std_scr and clear window
+
+    max_y, max_x = scr_obj.getmaxyx()  # get max window size
+    welcome_str = '(%d x %d)' % (max_x, max_y)
+    welcome_str += ' terminal size is too small to run :(' if max_y < 20 or max_x < 60 else ' press any key to GO :)'
+    scr_obj.addstr(welcome_str)
+    scr_obj.refresh()
+    scr_obj.getkey()  # inform the max window size
+    if max_y < 20 or max_x < 60:  # quit program if terminal size is too small
+        return False, ()
+    # argument sets for each window object here:
+    a_st = {'xy': (0, 0), 'wh': (max_x - 30, 3), 'h_text': 'Status'}  # status
+    a_sd = {'xy': (0, max_y - 6), 'wh': (max_x - 30, 6), 'h_text': 'Send'}  # send
+    a_ct = {'xy': (0, 3), 'wh': (max_x - 30, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}  # chat
+    a_dg = {'xy': (max_x - 30, 0), 'wh': (30, max_y), 'h_text': 'Debug'}  # debug
+
+    w_st, w_ct, w_sd, w_dg = StatusWindow(**a_st), ChatWindow(**a_ct), SendWindow(**a_sd), DebugWindow(**a_dg)
+    return True, (w_st, w_ct, w_sd, w_dg, (max_y, max_x))
 
 
 class CreateWindow:
@@ -204,8 +241,13 @@ class ChatWindow(CreateWindow):
                 for j in range(len(msg_clips)):
                     # delta between standard len and current len
                     m_len = msg_len_r - len(msg_clips[j]) - cn_count(msg_clips[j])  # calc the count of blank space
-                    msg = msg_clips[j] + ('%s' % (' ' * (1 + r_len + m_len)) if j else '<%s' % chat_var[i]['from'])
-                    self.t_add_str_sets.append([self.align_right(msg), 0])  # update
+                    if chat_var[i]['from'] == config.C_SEND_ROLE_NAME:  # align right for self
+                        msg = msg_clips[j] + ('%s' % (' ' * (1 + r_len + m_len)) if j else '<%s' % chat_var[i]['from'])
+                        self.t_add_str_sets.append([self.align_right(msg), 0])  # update
+                    else:  # align left for friend
+                        msg = ('%s' % (' ' * (1 + r_len + m_len)) if j else '%s>' % chat_var[i]['from']) + msg_clips[j]
+                        self.t_add_str_sets.append([self.align_left(msg), 0])  # update
+
             bgn_i = -(self.height - 1) + self.page_offset  # begin_index
             dest_i = len(self.t_add_str_sets) + self.page_offset  # dest_index
             for i, a in enumerate(self.t_add_str_sets[bgn_i:dest_i]):
@@ -221,7 +263,7 @@ class SendWindow(CreateWindow):
                  h_style=curses.A_REVERSE, refresh_now: bool = True, cn_count: int = 0):
         super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, cn_count)  # inherit from parent
         self.message = ''
-        self.role_name = 'anonymous'
+        self.role_name = config.C_SEND_ROLE_NAME
         self.unknown_characters = []
 
     def set_role_name(self, role_name: str):
@@ -246,9 +288,10 @@ class SendWindow(CreateWindow):
     def append_message(self, append_text: str):
         self.message += append_text
 
-    def send(self, chat_var: list):
+    def show_send(self, chat_var: list, send_succeed: bool):
         if len(self.message):
-            chat_var.append({'time': current_datetime(), 'message': self.message, 'from': self.role_name})
+            apx = '' if send_succeed else ' [sent failed]'
+            chat_var.append({'time': current_datetime(), 'message': self.message + apx, 'from': self.role_name})
             self.message = ''
 
 
