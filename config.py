@@ -59,3 +59,11 @@ C_SEND_ROLE_NAME = 'self'
 C_RECV_ROLE_NAME = 'her'
 C_SEND_TIMEOUT = 100
 C_RECV_TIMEOUT = 100
+C_SEND_SUCCEED_SUFFIX = ''
+C_SEND_FAILED_SUFFIX = '[!]'
+
+CODE_CN = ('\u0391', '\uffe5')  # chinese characters and commas
+CODE_CUSTOM = ()  # set the custom code range and add it to code_sets
+SEND_KEYS = [10, 13]  # \r 13 and \n 10
+QUIT_KEYS = [ord('D') - 0x40]  # Ctrl-D
+CODE_SETS = [CODE_CN]

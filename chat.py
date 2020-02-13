@@ -4,7 +4,7 @@
 # @FileName: chat.py
 # @Software: PyCharm
 import argparse
-from module.func import *
+from module.sub_command import *
 import config
 
 parser = argparse.ArgumentParser(description=config.PROGRAM_DESCRIPTION)

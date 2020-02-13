@@ -3,42 +3,32 @@
 # @Author  : Shek 
 # @FileName: func.py
 # @Software: PyCharm
-import nnpy
-import time
-import config
-from module import logger
 from module.pair import PairObject
-from module.windows import *
+from module.curses import curses_main_for_wrapper
 from curses import wrapper
-import curses
-
-chat_logs, debug_logs = [], []
-
-
-def current_datetime(format_str: str = '%Y-%m-%d %H:%M:%S'):
-    return datetime.datetime.now().strftime(format_str)
-
 
 
 def sub_cmd_bind(arguments):
+    chat_logs = []
     pair = PairObject()
     pair_conf_status, err_inf = pair.configure(arguments.protocol, arguments.addr, is_server=True)
     if pair_conf_status:
         pair.enable_recv_loop()
         pair.start_recv_loop(chat_var=chat_logs)
-        wrapper(curses_main_for_wrapper, pair, chat_logs, debug_logs)  # pair->pair_obj of curses_main_for_wrapper
+        wrapper(curses_main_for_wrapper, pair, chat_logs)  # pair->pair_obj of curses_main_for_wrapper
         print('all stopped.')
     else:
         print('init failed because:\n'.format(err_inf))
 
 
 def sub_cmd_connect(arguments):
+    chat_logs = []
     pair = PairObject()
     pair_conf_status, err_inf = pair.configure(arguments.protocol, arguments.addr, is_server=False)  # is_server:0
     if pair_conf_status:
         pair.enable_recv_loop()
         pair.start_recv_loop(chat_var=chat_logs)
-        wrapper(curses_main_for_wrapper, pair, chat_logs, debug_logs)
+        wrapper(curses_main_for_wrapper, pair, chat_logs)
         print('all stopped.')
     else:
         print('init failed because:\n'.format(err_inf))
