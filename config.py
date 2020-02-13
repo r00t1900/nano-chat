@@ -14,7 +14,7 @@ CONNECT_ADDR = '{}:{}'.format(HOST_CONNECT, PORT)
 BIND_ADDR = '{}:{}'.format(HOST_BIND, PORT)
 CONNECT_SUBSCRIBE = ''
 # program configuration
-NN_MODE = 'PAIR MODE'
+NN_MODE = 'nanomsg-Pair&Curses'
 PROGRAM_URL = 'http://github.com/YourGithub/RepositoryAddress'
 PROGRAM_DESCRIPTION = 'A {} LAN-chat program written in Python3 {}'.format(NN_MODE, PROGRAM_URL)
 ROLE_NAME_PUSH = 'push'
@@ -71,3 +71,5 @@ C_DATETIME_REFRESH_INTERVAL = 60
 C_SEND_MESSAGE_MAX_WIDTH = 30
 C_SELF_ID = 0
 C_FRIEND_ID = 1
+C_WRAPPER_STOPPED_HINT_TEXT = 'All stopped'
+C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX = 'init failed because:'
