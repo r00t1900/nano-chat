@@ -15,7 +15,7 @@ BIND_ADDR = '{}:{}'.format(HOST_BIND, PORT)
 CONNECT_SUBSCRIBE = ''
 # program configuration
 NN_MODE = 'nanomsg-Pair&Curses'
-PROGRAM_URL = 'http://github.com/YourGithub/RepositoryAddress'
+PROGRAM_URL = 'https://github.com/r00t1900/nano-chat'
 PROGRAM_DESCRIPTION = 'A {} LAN-chat program written in Python3 {}'.format(NN_MODE, PROGRAM_URL)
 ROLE_NAME_PUSH = 'push'
 ROLE_NAME_PULL = 'pull'

@@ -1,5 +1,5 @@
 # nano-chat program
-
+Description on Jianshu https://www.jianshu.com/p/98f0719c910d
 ### Structure
 
 ![structure](imgs/image-20200214202532788.png)
