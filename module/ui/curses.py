@@ -3,11 +3,23 @@
 # @Author  : Shek 
 # @FileName: curses.py
 # @Software: PyCharm
+"""
+functions or loader related to curses UI
+(classes related please referer to module/ui/windows.py)
+
+The main function is main4curses_wrapper(), many other function calls are served for it.
+Referer to it's function reference for more details.
+"""
 import curses
 from conf import config
 from curses import wrapper
 from module.ui.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow, HelpWindow
 from module.communication.nanomsg_pair import PairObject
+
+STAT_LINES = 3
+SEND_LINES = 6
+HELP_LINES = 6
+DEBUG_COLS = 30
 
 
 def process_chinese_characters(ch_current_got, ch_windows, send_windows_obj):
@@ -65,11 +77,16 @@ def pre_configure(scr_obj):
     color_pair_configure()  # for colorful display in terminal
 
     # 3. create 4 window for different usages
-    a_st = {'xy': (0, 0), 'wh': (max_x - 30, 3), 'h_text': 'Status'}  # status
-    a_sd = {'xy': (0, max_y - 6), 'wh': (max_x - 30, 6), 'h_text': 'Send'}  # send
-    a_ct = {'xy': (0, 3), 'wh': (max_x - 30, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}  # chat
-    a_dg = {'xy': (max_x - 30, 0), 'wh': (30, max_y - 5), 'h_text': 'Debug'}  # debug
-    a_hp = {'xy': (max_x - 30, max_y - 5), 'wh': (30, 5), 'h_text': 'Debug'}  # help
+    # status
+    a_st = {'xy': (0, 0), 'wh': (max_x - DEBUG_COLS, STAT_LINES), 'h_text': 'Status'}
+    # send
+    a_sd = {'xy': (0, max_y - SEND_LINES), 'wh': (max_x - DEBUG_COLS, SEND_LINES), 'h_text': 'Send'}
+    # chat
+    a_ct = {'xy': (0, STAT_LINES), 'wh': (max_x - DEBUG_COLS, max_y - a_st['wh'][1] - a_sd['wh'][1]), 'h_text': 'Chat'}
+    # debug
+    a_dg = {'xy': (max_x - DEBUG_COLS, 0), 'wh': (DEBUG_COLS, max_y - HELP_LINES), 'h_text': 'Debug'}
+    # help
+    a_hp = {'xy': (max_x - DEBUG_COLS, max_y - HELP_LINES), 'wh': (DEBUG_COLS, HELP_LINES), 'h_text': 'Help'}
 
     #  use arguments above to create each window object
     w_st, w_ct, w_sd, w_dg = StatusWindow(**a_st), ChatWindow(**a_ct), SendWindow(**a_sd), DebugWindow(**a_dg)
@@ -108,8 +125,6 @@ def key_pressed_solution(std_scr, stw: StatusWindow, ctw: ChatWindow, sdw: SendW
         elif ch in config.SEND_KEYS:  # Enter: send
             if len(sdw.message):
                 send_result, send_inf = comm.send(text=sdw.message)
-                if not send_result:
-                    dgw.add_debug_message('sent failed')
                 sdw.publish_send_status(chat_var=ct_storage, send_succeed=send_result)
             ctw.page_bottom()
         elif ch == curses.KEY_PPAGE:  # PageUp key
@@ -125,7 +140,7 @@ def key_pressed_solution(std_scr, stw: StatusWindow, ctw: ChatWindow, sdw: SendW
     return 1
 
 
-def main4wrapper(std_scr, comm_obj, chat_logs_storage: list):
+def main4curses_wrapper(std_scr, comm_obj, chat_logs_storage: list):
     """
     function-based argument for curses.wrapper
     :param std_scr: the raw window object that was first created
@@ -153,9 +168,14 @@ def main4wrapper(std_scr, comm_obj, chat_logs_storage: list):
 
     # 1.debugger initialize here
     w_chat.init_debug_object(w_debug)  # init debugger for ChatWindow
+    w_send.init_debug_object(w_debug)  # init debugger for SendWindow
 
     # 2.pull trigger of threads here
     w_status.upd_datetime_thread_start()  # start datetime sync thread here
+
+    # 3.add help messages in once
+    w_help.set_help_messages(config.C_HELP_LIST)
+    w_help.upd_scr_help_message()  # update for 1 time is enough
 
     # III.CALL FUNCTIONS THAT RUN EVERY LOOP BELOW:
 
@@ -170,8 +190,11 @@ def main4wrapper(std_scr, comm_obj, chat_logs_storage: list):
         w_send.upd_scr_message()
         w_send.win.noutrefresh()
         # FOR DEBUG
-        w_debug.upd_scr_debug_logs()
+        w_debug.upd_scr_debug_msgs()
         w_debug.win.noutrefresh()
+        # FOR HELP
+        # w_help.upd_scr_help_message() # just run once so I put it to 'I' area above
+        w_help.win.noutrefresh()
 
         # FOR PHYSICAL SCREEN
         # physical screen refresh
@@ -213,6 +236,6 @@ def curses_boot_loader(protocol: str, addr: str, is_server: bool):
     if comm_conf_status:
         comm_type.enable_recv_loop()
         comm_type.start_recv_loop(chat_var=chat_logs)
-        wrapper(main4wrapper, comm_type, chat_logs)
+        wrapper(main4curses_wrapper, comm_type, chat_logs)
     else:
         print('{}\n{}'.format(config.C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX, comm_err_inf))

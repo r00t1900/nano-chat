@@ -73,3 +73,9 @@ C_SELF_ID = 0
 C_FRIEND_ID = 1
 C_WRAPPER_STOPPED_HINT_TEXT = 'All stopped'
 C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX = 'init failed because:'
+C_HELP_LIST = [
+    'Ctrl-^D\t:Exit',
+    'Enter\t:Send'
+]
+# C_SHOW_POSITION_SIZE = False
+C_SHOW_POSITION_SIZE = True
