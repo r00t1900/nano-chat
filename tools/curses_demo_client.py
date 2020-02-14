@@ -6,6 +6,6 @@
 import sys
 
 sys.path.append('..')
-from module.tools import curse_ui_test_client
+from modules.tools import curse_ui_test_client
 
 curse_ui_test_client()

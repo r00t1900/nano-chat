@@ -3,7 +3,7 @@
 # @Author  : Shek 
 # @FileName: func.py
 # @Software: PyCharm
-from module.ui.curses import curses_boot_loader
+from modules.ui.curses import boot_loader4curses
 
 
 def sub_cmd_bind(arguments):
@@ -12,7 +12,7 @@ def sub_cmd_bind(arguments):
     :param arguments:
     :return:
     """
-    curses_boot_loader(arguments.protocol, arguments.addr, is_server=True)
+    boot_loader4curses(arguments.protocol, arguments.addr, is_server=True)
 
 
 def sub_cmd_connect(arguments):
@@ -21,4 +21,4 @@ def sub_cmd_connect(arguments):
     :param arguments:
     :return:
     """
-    curses_boot_loader(arguments.protocol, arguments.addr, is_server=False)
+    boot_loader4curses(arguments.protocol, arguments.addr, is_server=False)

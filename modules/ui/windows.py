@@ -29,7 +29,7 @@ so refer to class-level or class-based-function-level documentation if needed
 """
 import curses
 import threading
-from module.common import *
+from modules.common import *
 
 
 class CreateWindow:

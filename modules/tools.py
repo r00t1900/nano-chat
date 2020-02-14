@@ -6,7 +6,7 @@
 import curses
 from conf import config
 from curses import wrapper
-from module.ui.curses import curses_boot_loader
+from modules.ui.curses import boot_loader4curses
 
 
 def print_key_name():
@@ -36,7 +36,7 @@ def curse_ui_test_server():
     test curses UI with default config in server mode
     :return:
     """
-    curses_boot_loader(config.PROTOCOL, config.BIND_ADDR, is_server=True)  # test as a server node
+    boot_loader4curses(config.PROTOCOL, config.BIND_ADDR, is_server=True)  # test as a server node
 
 
 def curse_ui_test_client():
@@ -44,4 +44,4 @@ def curse_ui_test_client():
     test curses UI with default config in client mode
     :return:
     """
-    curses_boot_loader(config.PROTOCOL, config.CONNECT_ADDR, is_server=False)  # test as a client node
+    boot_loader4curses(config.PROTOCOL, config.CONNECT_ADDR, is_server=False)  # test as a client node

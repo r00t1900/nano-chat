@@ -38,7 +38,7 @@ Feb 13, 2020 by Shek
 import nnpy
 import threading
 from conf import config
-from module.common import current_datetime
+from modules.common import current_datetime
 
 
 class PairObject:
@@ -48,8 +48,8 @@ class PairObject:
         # variables defined here below just for coding convenience
         self.pair_socket, self.pair_socket_end_point = None, None
         # tell IDE its types
-        assert isinstance(self.pair_socket, nnpy.Socket)
-        assert isinstance(self.pair_socket_end_point, int)
+        # assert isinstance(self.pair_socket, nnpy.Socket)
+        # assert isinstance(self.pair_socket_end_point, int)
 
     # SELF RELATED(REQUIRED)
     def start(self, protocol: str, addr: str, is_server: bool = True):

@@ -27,7 +27,7 @@ optional arguments:
 
 """
 import argparse
-from module.ui.cmd import *
+from modules.ui.cmd import *
 from conf import config
 
 parser = argparse.ArgumentParser(description=config.PROGRAM_DESCRIPTION)

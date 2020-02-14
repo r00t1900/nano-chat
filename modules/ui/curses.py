@@ -13,8 +13,8 @@ Referer to it's function reference for more details.
 import curses
 from conf import config
 from curses import wrapper
-from module.ui.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow, HelpWindow
-from module.communication.nanomsg_pair import PairObject
+from modules.ui.windows import StatusWindow, ChatWindow, SendWindow, DebugWindow, HelpWindow
+from modules.communication.nanomsg_pair import PairObject
 
 STAT_LINES = 3
 SEND_LINES = 6
@@ -222,7 +222,7 @@ def main4curses_wrapper(std_scr, comm_obj, chat_logs_storage: list):
     comm_obj.stop_recv_loop()  # stop threading of chat_logs sync
 
 
-def curses_boot_loader(protocol: str, addr: str, is_server: bool):
+def boot_loader4curses(protocol: str, addr: str, is_server: bool):
     """
     a standard binder for nanomsg and curses and I think I can call it a loader either
     :param protocol: arguments for nanomsg

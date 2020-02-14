@@ -9,7 +9,7 @@ press key on your keyboard and it returns you the key_name in curses along with 
 import sys
 
 sys.path.append('..')
-from module.tools import print_key_name
+from modules.tools import print_key_name
 
 if __name__ == '__main__':
     print_key_name()
