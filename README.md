@@ -44,17 +44,17 @@ run as client node:
 
 `python3 chat.py connect tcp 127.0.0.1:4000` or `python3 chat.py connect`
 
-![left is client node and right is server node](./imgs/image-20200214165444799.png)
+![left is client node and right is server node](imgs/image-20200214165444799.png)
 
 ### Documentation
 
 There is a summary table of the program structure,  but if you want all details I suggest that you can refer to exact script file and read the comments for all details that I left:
 
-![image-20200214194543032](./imgs/image-20200214194543032.png)
+![image-20200214194543032](imgs/image-20200214194543032.png)
 
-![image-20200214194603393](./imgs/image-20200214194603393.png)
+![image-20200214194603393](imgs/image-20200214194603393.png)
 
-![image-20200214194635301](./imgs/image-20200214194635301.png)
+![image-20200214194635301](imgs/image-20200214194635301.png)
 
 
 
