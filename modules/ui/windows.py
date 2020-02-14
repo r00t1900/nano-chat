@@ -366,7 +366,8 @@ class ChatWindow(CreateWindow):
                         msg = msg_clips[j] + ('%s' % (' ' * (1 + r_len + m_len)) if j else '<%s' % chat_var[i]['from'])
                         self.logs_loop_sets.append([self.align_right(msg), 0])  # update
                     else:  # align left for friend
-                        msg = ('%s' % (' ' * (1 + r_len + m_len)) if j else '%s>' % chat_var[i]['from']) + msg_clips[j]
+                        # fixed align left bug on 20:55 2020-2-14, for left just need (1+r_len)*space
+                        msg = ('%s' % (' ' * (1 + r_len)) if j else '%s>' % chat_var[i]['from']) + msg_clips[j]
                         self.logs_loop_sets.append([self.align_left(msg), 0])  # update
 
             # 3.draw it

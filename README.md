@@ -23,7 +23,7 @@ run as client node:
 
 `python3 chat.py connect tcp 127.0.0.1:4000` or `python3 chat.py connect`
 
-![left is client node and right is server node](imgs/image-20200214165444799.png)
+![left is client node and right is server node](imgs/image-20200214205723912.png)
 
 ### Documentation
 
