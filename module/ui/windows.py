@@ -42,6 +42,7 @@ class CreateWindow:
 
         # 1.create a new window
         self.win = self.__window_create(xy, wh, h_enabled, h_text, h_style, zh_count)
+        self.win.move(1, 0)
         if refresh_now:  # refresh window once it was created
             self.refresh()
 

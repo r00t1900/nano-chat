@@ -13,8 +13,10 @@ Simplified documentation:
 
 This class can be divided into 3 parts:
 configure, receive and send
-part[configure] has 1 function:
-    configure(self,protocol,addr,is_server), which used to create a nnpy.Socket(nnpy.AF_SP,nnpy.PAIR) object
+part[self] has 3 function:
+    start(protocol,addr,is_server), which used to create a nnpy.Socket(nnpy.AF_SP,nnpy.PAIR) object
+    establish(protocol,addr,is_server), served for start()
+    stop(), call nnpy.Socket.shutdown(who) and nnpy.Socket.close() to free socket and memory resources
 part[recv] has 6 functions:
     start_recv_loop(chat_var): start a thread to feed data to outside variable "char_var", when flag_recv_enabled is 1
     stop_recv_loop(): set flag_recv_enabled to stop the thread
@@ -41,26 +43,57 @@ from module.common import current_datetime
 
 class PairObject:
     def __init__(self):
-        # self.pair_socket = nnpy.Socket  # has not been configured yet, just for debugging convenience
-        # self.pair_socket = nnpy.Socket()  # has not been configured yet, just for debugging convenience
         self.flag_recv_enabled = False
 
-    # CONFIGURE(REQUIRED)
-    def configure(self, protocol: str, addr: str, is_server: bool = True):
+        # variables defined here below just for coding convenience
+        self.pair_socket, self.pair_socket_end_point = None, None
+        # tell IDE its types
+        assert isinstance(self.pair_socket, nnpy.Socket)
+        assert isinstance(self.pair_socket_end_point, int)
+
+    # SELF RELATED(REQUIRED)
+    def start(self, protocol: str, addr: str, is_server: bool = True):
         # configure should be call first
         try:
-            pair_socket = nnpy.Socket(nnpy.AF_SP, nnpy.PAIR)
-            # set send and recv timeout to 1s
-            pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.SNDTIMEO, config.C_SEND_TIMEOUT)
-            pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, config.C_RECV_TIMEOUT)
-            if is_server:  # run as server
-                pair_socket.bind('{}://{}'.format(protocol, addr))
-            else:  # run as client
-                pair_socket.connect('{}://{}'.format(protocol, addr))
-            self.pair_socket = pair_socket
+            self.establish(protocol=protocol, addr=addr, is_server=is_server)
             return True, ''
         except Exception as e:
             return False, e
+
+    def establish(self, protocol: str, addr: str, is_server: bool):
+        """
+        function that served for start(), run it directly may raise unexpected error
+        :param protocol:
+        :param addr:
+        :param is_server:
+        :return:
+        """
+        pair_socket = nnpy.Socket(nnpy.AF_SP, nnpy.PAIR)
+        # set send and recv timeout to 1s
+        pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.SNDTIMEO, config.C_SEND_TIMEOUT)
+        pair_socket.setsockopt(nnpy.SOL_SOCKET, nnpy.RCVTIMEO, config.C_RECV_TIMEOUT)
+        if is_server:  # run as server
+            end_point = pair_socket.bind('{}://{}'.format(protocol, addr))
+        else:  # run as client
+            end_point = pair_socket.connect('{}://{}'.format(protocol, addr))
+        self.pair_socket = pair_socket
+        self.pair_socket_end_point = end_point  # for shutdown()
+
+    def stop(self):
+        """
+        remember to shutdown and close if you do not use it anymore
+        :return:
+        """
+        try:
+            # who= endpoint (compatible API), references(https://nng.nanomsg.org/man/v1.1.0/nn_shutdown.3compat):
+            # The nn_shutdown() shuts down the “endpoint” ep on the socket sock. This will stop the socket from either
+            # accepting new connections, or establishing old ones. Additionally, any established connections associated
+            # with ep will be closed.
+            self.pair_socket.shutdown(who=self.pair_socket_end_point)
+            self.pair_socket.close()
+            print(config.C_COMM_MOD_STOP_SUCCEED_PREFIX.format(self.pair_socket_end_point))
+        except Exception as e:
+            print(config.C_COMM_MOD_STOP_FAILED_PREFIX.format(str(e)))
 
     # RECV RELATED
     def enable_recv_loop(self):

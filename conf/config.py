@@ -74,8 +74,13 @@ C_FRIEND_ID = 1
 C_WRAPPER_STOPPED_HINT_TEXT = 'All stopped'
 C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX = 'init failed because:'
 C_HELP_LIST = [
+    'Enter\t:Send',
+    'PgUp\t:Scroll Up',
+    'PgDown\t:Scroll Down',
     'Ctrl-^D\t:Exit',
-    'Enter\t:Send'
 ]
 # C_SHOW_POSITION_SIZE = False
 C_SHOW_POSITION_SIZE = True
+
+C_COMM_MOD_STOP_SUCCEED_PREFIX = 'comm module stopped:{}'
+C_COMM_MOD_STOP_FAILED_PREFIX = 'comm module stopped failed:\n{}'

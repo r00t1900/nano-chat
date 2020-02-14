@@ -158,11 +158,11 @@ def main4curses_wrapper(std_scr, comm_obj, chat_logs_storage: list):
     w_status, w_chat, w_send, w_debug, w_help, max_yx = elements
     std_scr.nodelay(True)  # for getch()
     curses.curs_set(0)  # disable cursor blinking
-    assert isinstance(w_status, StatusWindow)
-    assert isinstance(w_chat, ChatWindow)
-    assert isinstance(w_send, SendWindow)
-    assert isinstance(w_debug, DebugWindow)
-    assert isinstance(w_help, HelpWindow)
+    # assert isinstance(w_status, StatusWindow)
+    # assert isinstance(w_chat, ChatWindow)
+    # assert isinstance(w_send, SendWindow)
+    # assert isinstance(w_debug, DebugWindow)
+    # assert isinstance(w_help, HelpWindow)
 
     # II.CALL FUNCTIONS THAT RUN FOR ONE TIMES BELOW:
 
@@ -231,11 +231,12 @@ def curses_boot_loader(protocol: str, addr: str, is_server: bool):
     :return:
     """
     chat_logs = []
-    comm_type = PairObject()
-    comm_conf_status, comm_err_inf = comm_type.configure(protocol, addr, is_server=is_server)
+    comm_module = PairObject()
+    comm_conf_status, comm_err_inf = comm_module.start(protocol, addr, is_server=is_server)
     if comm_conf_status:
-        comm_type.enable_recv_loop()
-        comm_type.start_recv_loop(chat_var=chat_logs)
-        wrapper(main4curses_wrapper, comm_type, chat_logs)
+        comm_module.enable_recv_loop()
+        comm_module.start_recv_loop(chat_var=chat_logs)
+        wrapper(main4curses_wrapper, comm_module, chat_logs)
+        comm_module.stop()  # always remember to call this after wrapper
     else:
         print('{}\n{}'.format(config.C_WRAPPER_STOPPED_WITH_FAILURE_TEXT_SUFFIX, comm_err_inf))
