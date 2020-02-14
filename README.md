@@ -3,29 +3,29 @@
 ### Structure
 
 .
-├── [2.4K]  chat.py
-├── [4.0K]  conf
-│   └── [2.6K]  config.py
-├── [4.0K]  logs
-├── [4.0K]  modules
-│   ├── [ 966]  common.py
-│   ├── [4.0K]  communication
-│   │   ├── [ 122]  \_\_init\_\_.py
-│   │   └── [5.2K]  nanomsg_pair.py
-│   ├── [ 121]  \_\_init\_\_.py
-│   ├── [2.5K]  logger.py
-│   ├── [1.3K]  tools.py
-│   └── [4.0K]  ui
-│       ├── [ 576]  cmd.py
-│       ├── [10.0K]  curses.py
-│       ├── [ 122]  \_\_init\_\_.py
-│       └── [ 23K]  windows.py
-└── [4.0K]  tools
-    ├── [ 241]  curses_demo_client.py
-    ├── [ 241]  curses_demo_server.py
-    └── [ 364]  find_key_name.py
-
-6 directories, 15 files
+├── [2.4K]  chat.py  
+├── [4.0K]  conf  
+│   └── [2.6K]  config.py  
+├── [4.0K]  logs  
+├── [4.0K]  modules  
+│   ├── [ 966]  common.py  
+│   ├── [4.0K]  communication  
+│   │   ├── [ 122]  \_\_init\_\_.py  
+│   │   └── [5.2K]  nanomsg_pair.py  
+│   ├── [ 121]  \_\_init\_\_.py  
+│   ├── [2.5K]  logger.py  
+│   ├── [1.3K]  tools.py  
+│   └── [4.0K]  ui  
+│       ├── [ 576]  cmd.py  
+│       ├── [10.0K]  curses.py  
+│       ├── [ 122]  \_\_init\_\_.py  
+│       └── [ 23K]  windows.py  
+└── [4.0K]  tools  
+    ├── [ 241]  curses_demo_client.py  
+    ├── [ 241]  curses_demo_server.py  
+    └── [ 364]  find_key_name.py  
+  
+6 directories, 15 files  
 
 ### Requirements
 
@@ -44,17 +44,17 @@ run as client node:
 
 `python3 chat.py connect tcp 127.0.0.1:4000` or `python3 chat.py connect`
 
-![left is client node and right is server node](./imgs/image-20200214165444799.png)
+![left is client node and right is server node](imgs/image-20200214165444799.png)
 
 ### Documentation
 
 There is a summary table of the program structure,  but if you want all details I suggest that you can refer to exact script file and read the comments for all details that I left:
 
-![image-20200214194543032](./imgs/image-20200214194543032.png)
+![image-20200214194543032](imgs/image-20200214194543032.png)
 
-![image-20200214194603393](./imgs/image-20200214194603393.png)
+![image-20200214194603393](imgs/image-20200214194603393.png)
 
-![image-20200214194635301](./imgs/image-20200214194635301.png)
+![image-20200214194635301](imgs/image-20200214194635301.png)
 
 
 
