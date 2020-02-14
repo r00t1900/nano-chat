@@ -2,29 +2,8 @@
 
 ### Structure
 
-.  
-├── [2.4K]  chat.py  
-├── [4.0K]  conf  
-│   └── [2.6K]  config.py  
-├── [4.0K]  logs  
-├── [4.0K]  modules  
-│   ├── [ 966]  common.py  
-│   ├── [4.0K]  communication  
-│   │   ├── [ 122]  \_\_init\_\_.py  
-│   │   └── [5.2K]  nanomsg_pair.py  
-│   ├── [ 121]  \_\_init\_\_.py  
-│   ├── [2.5K]  logger.py  
-│   ├── [1.3K]  tools.py  
-│   └── [4.0K]  ui  
-│       ├── [ 576]  cmd.py  
-│       ├── [10.0K]  curses.py  
-│       ├── [ 122]  \_\_init\_\_.py  
-│       └── [ 23K]  windows.py  
-└── [4.0K]  tools  
-    ├── [ 241]  curses_demo_client.py  
-    ├── [ 241]  curses_demo_server.py  
-    └── [ 364]  find_key_name.py  
-  
+![structure](imgs/image-20200214202532788.png)
+
 6 directories, 15 files  
 
 ### Requirements
