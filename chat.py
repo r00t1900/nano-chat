@@ -48,7 +48,6 @@ cmd_connect.add_argument('--subscribe', action='store', nargs='?', default=confi
 cmd_connect.add_argument('--keep-alive', action='store_true', help=config.H_CONNECT_KEEP_ALIVE)
 cmd_connect.set_defaults(func=sub_cmd_connect)
 
-
 args = parser.parse_args()  # 处理输入的参数
 if not hasattr(args, 'func'):
     # 无参数时跳转到-h，否则会提示 namespace object has not attribute 'func'，故这里用hasattr()判断

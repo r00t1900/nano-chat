@@ -77,7 +77,7 @@ C_HELP_LIST = [
     'Enter\t:Send',
     'PgUp\t:Scroll Up',
     'PgDown\t:Scroll Down',
-    'Ctrl-^D\t:Exit',
+    'Ctrl-D\t:Exit',
 ]
 # C_SHOW_POSITION_SIZE = False
 C_SHOW_POSITION_SIZE = True
