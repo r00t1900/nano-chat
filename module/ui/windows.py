@@ -12,6 +12,7 @@ class CreateWindow:
     """
     Parent class "CreateWindow" to be inherited which will automatically create window object by default
     """
+
     def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
                  h_style=curses.A_NORMAL, refresh_now: bool = True, zh_count: int = 0):
         self.win = self.__window_create(xy, wh, h_enabled, h_text, h_style, zh_count)  # create a window
@@ -103,7 +104,7 @@ class DebugWindow(CreateWindow):
             self.win.move(1, 0)  # move cursor to (1,0)
             self.win.clrtoeol()  # clear from (1,0) to end-of-line(EOL)
             for i, line in enumerate(self.debug_logs[-(self.height - 1):]):
-                self.win.addstr(i + 1, 0, self.debug_logs[i][:self.width])
+                self.win.addstr(i + 1, 0, self.debug_logs[i][:self.width - 1])
             self.win.move(1, 0)  # move cursor to (1,0)
             self.last_debug_logs = self.debug_logs.copy()  # copy to last_chat_logs for compare the next time
 
@@ -285,3 +286,38 @@ class SendWindow(CreateWindow):
             chat_var.append({'time': current_datetime(), 'message': self.message + apx, 'from': self.role_name,
                              'role': config.C_SELF_ID})
             self.message = ''
+
+
+class HelpWindow(CreateWindow):
+    # help text shown below debug window
+    def __init__(self, xy: tuple, wh: tuple, h_enabled: bool = True, h_text: str = '',
+                 h_style=curses.A_REVERSE, refresh_now: bool = True, zh_count: int = 0):
+        super().__init__(xy, wh, h_enabled, h_text, h_style, refresh_now, zh_count)  # inherit from parent
+        self.help_messages = []
+
+    def add_help_message(self, message: str):
+        """
+        add a single help message to current list, maximum is height-1 records in total
+        :param message: msg itself
+        :return:
+        """
+        if len(self.help_messages) < self.height - 1:
+            self.help_messages.append(message)
+
+    def set_help_messages(self, messages_list: list):
+        """
+        multiple-mode adding help messages. Maximum height-1 records in total
+        :param messages_list: a list-set of messages you want to show
+        :return:
+        """
+        self.help_messages = messages_list[:self.height - 1]
+
+    def wipe_debug_messages_all(self):
+        self.help_messages = []
+
+    def upd_scr_help_message(self):
+        self.win.move(1, 0)  # move cursor to (1,0)
+        self.win.clrtoeol()  # clear from (1,0) to end-of-line(EOL)
+        for j, line in enumerate(self.help_messages):  # show all help_messages(has been cut to length=height-1 so all)
+            self.win.addstr(j + 1, 0, self.help_messages[j][:self.width - 1])  # max width limit
+        self.win.move(1, 0)  # move cursor to (1,0)
